@@ -24,20 +24,10 @@ async function getCameraDevices() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
         
-        cameraSelect.innerHTML = '<option value="">Seleccionar cámara</option>';
+        cameraSelect.innerHTML = '<option value="user">Cámara frontal</option>';
+        cameraSelect.innerHTML += '<option value="environment">Cámara trasera</option>';
         
-        if (videoDevices.length > 0) {
-            videoDevices.forEach((device, index) => {
-                const option = document.createElement('option');
-                option.value = device.deviceId;
-                option.text = device.label || `Cámara ${index + 1}`;
-                if (device.label.toLowerCase().includes('front')) {
-                    option.text += ' (Frontal)';
-                    option.selected = true;
-                }
-                cameraSelect.appendChild(option);
-            });
-        }
+        console.log('Dispositivos de video disponibles:', videoDevices);
     } catch (error) {
         console.error('Error al obtener dispositivos:', error);
     }
@@ -48,25 +38,22 @@ document.getElementById('startCamera').addEventListener('click', async function(
         webcam.stop();
     }
     
-    let selectedDeviceId = cameraSelect.value;
-    if (!selectedDeviceId) {
-        // Si no se ha seleccionado una cámara, intenta usar la frontal por defecto
-        selectedDeviceId = 'user';
-    }
+    const selectedFacingMode = cameraSelect.value;
+    console.log('Modo de cámara seleccionado:', selectedFacingMode);
 
     try {
         const constraints = {
-            video: {
-                facingMode: selectedDeviceId === 'user' ? 'user' : { exact: selectedDeviceId }
-            }
+            video: { facingMode: selectedFacingMode }
         };
 
+        console.log('Intentando obtener acceso a la cámara con restricciones:', constraints);
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('Acceso a la cámara obtenido con éxito');
 
         videoElement.srcObject = stream;
         videoElement.style.display = 'block';
 
-        const flip = false;
+        const flip = selectedFacingMode === 'user';
         webcam = new tmImage.Webcam(400, 400, flip);
         await webcam.setup(constraints.video);
         await webcam.play();
@@ -75,14 +62,8 @@ document.getElementById('startCamera').addEventListener('click', async function(
         document.getElementById('startCamera').style.display = 'none';
         window.requestAnimationFrame(loop);
     } catch (error) {
-        console.error('Error al iniciar la cámara:', error);
-        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-            alert('Permiso de cámara denegado. Por favor, concede el permiso en la configuración de tu navegador y recarga la página.');
-        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
-            alert('No se encontró ninguna cámara. Por favor, asegúrate de que tu dispositivo tiene una cámara y está funcionando correctamente.');
-        } else {
-            alert('Error al iniciar la cámara. Por favor, verifica los permisos e intenta de nuevo. Si el problema persiste, recarga la página.');
-        }
+        console.error('Error detallado al iniciar la cámara:', error);
+        alert(`Error al iniciar la cámara: ${error.name} - ${error.message}`);
     }
 });
 
