@@ -31,6 +31,10 @@ async function getCameraDevices() {
                 const option = document.createElement('option');
                 option.value = device.deviceId;
                 option.text = device.label || `Cámara ${index + 1}`;
+                if (device.label.toLowerCase().includes('front')) {
+                    option.text += ' (Frontal)';
+                    option.selected = true;
+                }
                 cameraSelect.appendChild(option);
             });
         }
@@ -44,17 +48,16 @@ document.getElementById('startCamera').addEventListener('click', async function(
         webcam.stop();
     }
     
-    const selectedDeviceId = cameraSelect.value;
+    let selectedDeviceId = cameraSelect.value;
     if (!selectedDeviceId) {
-        alert("Por favor, selecciona una cámara primero.");
-        return;
+        // Si no se ha seleccionado una cámara, intenta usar la frontal por defecto
+        selectedDeviceId = 'user';
     }
 
     try {
         const constraints = {
             video: {
-                deviceId: selectedDeviceId ? {exact: selectedDeviceId} : undefined,
-                facingMode: selectedDeviceId ? undefined : 'environment'
+                facingMode: selectedDeviceId === 'user' ? 'user' : { exact: selectedDeviceId }
             }
         };
 
