@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Plantas</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Clasificador de Residuos</h1>
+        <div id="camera-controls">
+            <button id="cameraSelector">Seleccionar Cámara</button>
+            <div id="cameraOptions" class="camera-options"></div>
+            <button id="startCamera">Activar Cámara</button>
+        </div>
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas"></canvas>
+        <div id="result"></div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
